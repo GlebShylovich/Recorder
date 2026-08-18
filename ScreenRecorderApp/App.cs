@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.CodeDom.Compiler;
 using System.Diagnostics;
 using System.IO;
@@ -12,17 +12,50 @@ namespace ScreenRecorderApp;
 public partial class App : Application
 {
 
+	public App()
+	{
+		base.Startup += App_Startup;
+	}
+
 	private async void App_Startup(object sender, StartupEventArgs e)
 	{
-		base.DispatcherUnhandledException += OnDispatcherUnhandledException;
-		AppDomain.CurrentDomain.UnhandledException += OnDomainUnhandledException;
-		if (SupabaseService.TryLoadSession())
+		string logFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "startup.log");
+		File.WriteAllText(logFile, $"[{DateTime.Now:HH:mm:ss}] App starting...\n");
+		try
 		{
-			new MainWindow().Show();
+			base.DispatcherUnhandledException += OnDispatcherUnhandledException;
+			AppDomain.CurrentDomain.UnhandledException += OnDomainUnhandledException;
+			File.AppendAllText(logFile, $"[{DateTime.Now:HH:mm:ss}] Event handlers registered.\n");
+
+			File.AppendAllText(logFile, $"[{DateTime.Now:HH:mm:ss}] Loading session...\n");
+			bool hasSession = SupabaseService.TryLoadSession();
+			File.AppendAllText(logFile, $"[{DateTime.Now:HH:mm:ss}] Session loaded. HasSession: {hasSession}\n");
+
+			if (hasSession)
+			{
+				File.AppendAllText(logFile, $"[{DateTime.Now:HH:mm:ss}] Creating MainWindow...\n");
+				MainWindow mainWin = new MainWindow();
+				File.AppendAllText(logFile, $"[{DateTime.Now:HH:mm:ss}] Showing MainWindow...\n");
+				mainWin.Show();
+				File.AppendAllText(logFile, $"[{DateTime.Now:HH:mm:ss}] MainWindow shown.\n");
+			}
+			else
+			{
+				File.AppendAllText(logFile, $"[{DateTime.Now:HH:mm:ss}] Creating LoginWindow...\n");
+				LoginWindow loginWin = new LoginWindow();
+				File.AppendAllText(logFile, $"[{DateTime.Now:HH:mm:ss}] Showing LoginWindow...\n");
+				loginWin.Show();
+				File.AppendAllText(logFile, $"[{DateTime.Now:HH:mm:ss}] LoginWindow shown.\n");
+			}
 		}
-		else
+		catch (Exception ex)
 		{
-			new LoginWindow().Show();
+			File.AppendAllText(logFile, $"[{DateTime.Now:HH:mm:ss}] CRASH during startup: {ex.GetType().Name} - {ex.Message}\n{ex.StackTrace}\n");
+			if (ex.InnerException != null)
+			{
+				File.AppendAllText(logFile, $"Inner exception: {ex.InnerException.GetType().Name} - {ex.InnerException.Message}\n{ex.InnerException.StackTrace}\n");
+			}
+			throw;
 		}
 	}
 

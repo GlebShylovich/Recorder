@@ -14,9 +14,9 @@
           </TextBlock>
         </StackPanel>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
-          <Button Content="?" Style="{StaticResource WindowControlButton}" Click="MinimizeButton_Click" />
-          <Button Content="?" Style="{StaticResource WindowControlButton}" Click="MaximizeButton_Click" />
-          <Button Content="?" Style="{StaticResource WindowCloseButton}" Command="{Binding DoneCommand}" />
+          <Button Content="" Style="{StaticResource WindowControlButton}" Click="MinimizeButton_Click" />
+          <Button Content="" Style="{StaticResource WindowControlButton}" Click="MaximizeButton_Click" />
+          <Button Content="" Style="{StaticResource WindowCloseButton}" Command="{Binding DoneCommand}" />
         </StackPanel>
       </Grid>
       <Grid Name="MainContent" Margin="10,40,10,10" Visibility="{Binding IsReady, Converter={StaticResource BoolToVis}}">
@@ -52,14 +52,14 @@
       </Border>
       <Border Background="#DD1E1E1E" CornerRadius="10" Visibility="{Binding IsSuccess, Converter={StaticResource BoolToVis}}">
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-          <TextBlock Text="?" Foreground="#00CC44" FontSize="72" HorizontalAlignment="Center" />
+          <TextBlock Text="✓" Foreground="#00CC44" FontSize="72" HorizontalAlignment="Center" />
           <TextBlock Foreground="#FFFFFFFF" FontSize="24" HorizontalAlignment="Center" Margin="0,20" Text="{Binding StatusText}" />
           <Button Content="Gotowe" Background="{StaticResource PrimaryColor}" Foreground="#FFFFFFFF" BorderThickness="0" Padding="20,10" FontSize="16" FontWeight="Bold" Cursor="Hand" HorizontalAlignment="Center" Command="{Binding DoneCommand}" />
         </StackPanel>
       </Border>
       <Border Background="#DD1E1E1E" CornerRadius="10" Visibility="{Binding IsError, Converter={StaticResource BoolToVis}}">
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-          <TextBlock Text="?" Foreground="#FF4444" FontSize="72" HorizontalAlignment="Center" />
+          <TextBlock Text="❌" Foreground="#FF4444" FontSize="72" HorizontalAlignment="Center" />
           <TextBlock Foreground="#FFFFFFFF" FontSize="20" HorizontalAlignment="Center" TextWrapping="Wrap" Margin="20,20" Text="{Binding StatusText}" />
           <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
             <Button Content="Nagraj ponownie" Style="{StaticResource SecondaryButton}" Margin="0,0,10,0" Command="{Binding RecordAgainCommand}" />

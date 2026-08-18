@@ -18,8 +18,8 @@
           </TextBlock>
         </StackPanel>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
-          <Button Content="?" Style="{StaticResource WindowControlButton}" Click="MinimizeButton_Click" />
-          <Button Content="?" Style="{StaticResource WindowCloseButton}" Click="CloseButton_Click" />
+          <Button Content="" Style="{StaticResource WindowControlButton}" Click="MinimizeButton_Click" />
+          <Button Content="" Style="{StaticResource WindowCloseButton}" Click="CloseButton_Click" />
         </StackPanel>
       </Grid>
       <StackPanel Grid.Row="1" Margin="30">

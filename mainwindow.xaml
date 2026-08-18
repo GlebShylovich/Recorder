@@ -19,8 +19,8 @@
           </TextBlock>
         </StackPanel>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
-          <Button Content="?" Style="{StaticResource WindowControlButton}" Click="MinimizeButton_Click" />
-          <Button Content="?" Style="{StaticResource WindowCloseButton}" Command="{Binding CloseCommand}" />
+          <Button Content="" Style="{StaticResource WindowControlButton}" Click="MinimizeButton_Click" />
+          <Button Content="" Style="{StaticResource WindowCloseButton}" Command="{Binding CloseCommand}" />
         </StackPanel>
       </Grid>
       <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="0,2,0,2">
