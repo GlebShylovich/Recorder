@@ -170,12 +170,19 @@ public static class UpdaterService
 	private static void RunBatchInstallerAndExit()
 	{
 		string currentExe = Environment.ProcessPath ?? Assembly.GetExecutingAssembly().Location;
+		string appDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ScreenRecorder");
+		string installedExe = Path.Combine(appDataFolder, "ScreenRecorderAppRun.exe");
 		string batchPath = Path.Combine(Path.GetTempPath(), "screen_recorder_updater.bat");
 
+		// Write a batch file that checks if the installed app exists after setup, and if so launches it
 		string batchContent = $@"@echo off
 timeout /t 2 /nobreak > nul
 start /wait """" ""{TempInstallerPath}"" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /CLOSEAPPLICATIONS
-start """" ""{currentExe}""
+if exist ""{installedExe}"" (
+    start """" ""{installedExe}""
+) else (
+    start """" ""{currentExe}""
+)
 del ""%~f0""
 ";
 

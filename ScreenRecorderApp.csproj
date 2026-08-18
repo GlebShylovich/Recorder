@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <AssemblyName>ScreenRecorderAppRun</AssemblyName>
+    <AssemblyName>ScreenRecorderAppFinal</AssemblyName>
     <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
     <OutputType>WinExe</OutputType>
     <UseWPF>True</UseWPF>
