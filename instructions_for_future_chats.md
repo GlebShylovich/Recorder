@@ -57,6 +57,7 @@
    В `App.cs` при запуске проверяется аргумент командной строки. Если он передан, приложение запускается скрыто, вызывает нативное уведомление и моментально завершает свою работу с помощью `Shutdown()`.
    * **Заголовок:** `Zauważyłeś błąd w systemie?`
    * **Текст:** `Nie trać czasu na pisanie. Nagraj ekran i zgłoś problem w 30 sekund!`
-2. **Авторегистрация в Windows Task Scheduler через Inno Setup:**
-   * При установке (секция `[Run]`) автоматически создается системная задача с именем `"EMANAGER Pomoc Reminder"`, запускающаяся каждый день в 14:00.
-   * При удалении (секция `[UninstallRun]`) эта системная задача корректно стирается.
+   * **Параметры:** `Filename: "schtasks"; Parameters: "/create /tn ""EMANAGER Pomoc Reminder"" /tr ""'""{app}\EManagerPomoc.exe""' --silent-notification"" /sc daily /st 14:00 /f"; Flags: runhidden`
+   * **Удаление при деинсталляции:**
+     Добавить команду в секцию `[UninstallRun]`:
+     `Filename: "schtasks"; Parameters: "/delete /tn ""EMANAGER Pomoc Reminder"" /f"; Flags: runhidden`
