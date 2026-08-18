@@ -24,6 +24,31 @@ public partial class App : Application
 		File.WriteAllText(logFile, $"[{DateTime.Now:HH:mm:ss}] App starting...\n");
 		try
 		{
+			// Check for silent notification argument
+			if (e.Args != null && e.Args.Length > 0)
+			{
+				foreach (string arg in e.Args)
+				{
+					if (arg.Equals("--silent-notification", StringComparison.OrdinalIgnoreCase))
+					{
+						File.AppendAllText(logFile, $"[{DateTime.Now:HH:mm:ss}] Silent notification flag detected. Launching toast...\n");
+						try
+						{
+							NotificationService.RegisterApp();
+							NotificationService.ShowToast(
+								"Zauważyłeś błąd w systemie?",
+								"Nie trać czasu na pisanie. Nagraj ekran i zgłoś problem w 30 sekund!"
+							);
+						}
+						catch (Exception exToast)
+						{
+							File.AppendAllText(logFile, $"[{DateTime.Now:HH:mm:ss}] Toast failed: {exToast.Message}\n");
+						}
+						Current.Shutdown();
+						return;
+					}
+				}
+			}
 			base.DispatcherUnhandledException += OnDispatcherUnhandledException;
 			AppDomain.CurrentDomain.UnhandledException += OnDomainUnhandledException;
 			File.AppendAllText(logFile, $"[{DateTime.Now:HH:mm:ss}] Event handlers registered.\n");
