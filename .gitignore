@@ -1,0 +1,20 @@
+# Build output
+bin/
+obj/
+*.baml
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# dotnet
+*.nupkg
+*.snupkg
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Logs
+*.log

@@ -1,0 +1,5 @@
+﻿<Window x:Class="ScreenRecorderApp.Views.RegionPickerWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Wybierz obszar" WindowState="Maximized" WindowStyle="None" AllowsTransparency="True" Background="#44000000" Topmost="True" Cursor="Cross" xmlns:views="clr-namespace:ScreenRecorderApp.Views;assembly=ScreenRecorderApp">
+  <Canvas Name="DrawCanvas" Background="#00FFFFFF" MouseLeftButtonDown="Canvas_MouseLeftButtonDown" MouseMove="Canvas_MouseMove" MouseLeftButtonUp="Canvas_MouseLeftButtonUp">
+    <Rectangle Name="SelectionRect" Stroke="#FFFF0000" StrokeThickness="2" Fill="#22FF0000" Visibility="Collapsed" />
+  </Canvas>
+</Window>
