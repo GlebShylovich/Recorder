@@ -2,6 +2,7 @@ using System;
 using System.CodeDom.Compiler;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using ScreenRecorderApp.Services;
@@ -27,6 +28,45 @@ public partial class App : Application
 			AppDomain.CurrentDomain.UnhandledException += OnDomainUnhandledException;
 			File.AppendAllText(logFile, $"[{DateTime.Now:HH:mm:ss}] Event handlers registered.\n");
 
+			// Check if we just updated successfully
+			if (File.Exists(UpdaterService.LastVersionFile))
+			{
+				try
+				{
+					string targetVersionStr = File.ReadAllText(UpdaterService.LastVersionFile).Trim();
+					Version currentVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version ?? new Version(1, 0, 0, 0);
+
+					if (currentVersion.ToString().StartsWith(targetVersionStr) || targetVersionStr.StartsWith(currentVersion.ToString()))
+					{
+						File.AppendAllText(logFile, $"[{DateTime.Now:HH:mm:ss}] Detected successful update to version {currentVersion}.\n");
+						
+						// Show Windows Notification
+						NotificationService.ShowToast(
+							"Aktualizacja zakończona pomyślnie!",
+							$"Aplikacja Recorder została zaktualizowana do wersji {currentVersion}."
+						);
+
+						// Show Changelog if cached
+						if (File.Exists(UpdaterService.ChangelogCachePath))
+						{
+							string changelogText = File.ReadAllText(UpdaterService.ChangelogCachePath);
+							File.AppendAllText(logFile, $"[{DateTime.Now:HH:mm:ss}] Displaying ChangelogWindow...\n");
+							ChangelogWindow changelogWin = new ChangelogWindow(changelogText);
+							changelogWin.ShowDialog();
+						}
+					}
+				}
+				catch (Exception exVal)
+				{
+					File.AppendAllText(logFile, $"[{DateTime.Now:HH:mm:ss}] Error during post-update logic: {exVal.Message}\n");
+				}
+				finally
+				{
+					try { File.Delete(UpdaterService.LastVersionFile); } catch {}
+					try { File.Delete(UpdaterService.ChangelogCachePath); } catch {}
+				}
+			}
+
 			File.AppendAllText(logFile, $"[{DateTime.Now:HH:mm:ss}] Loading session...\n");
 			bool hasSession = SupabaseService.TryLoadSession();
 			File.AppendAllText(logFile, $"[{DateTime.Now:HH:mm:ss}] Session loaded. HasSession: {hasSession}\n");
@@ -47,6 +87,20 @@ public partial class App : Application
 				loginWin.Show();
 				File.AppendAllText(logFile, $"[{DateTime.Now:HH:mm:ss}] LoginWindow shown.\n");
 			}
+
+			// Run silent update check in background after a short delay
+			_ = Task.Run(async () =>
+			{
+				try
+				{
+					await Task.Delay(5000);
+					await UpdaterService.CheckAndPerformUpdateAsync(silent: true);
+				}
+				catch (Exception exUp)
+				{
+					File.AppendAllText(logFile, $"[{DateTime.Now:HH:mm:ss}] Background update check failed: {exUp.Message}\n");
+				}
+			});
 		}
 		catch (Exception ex)
 		{
