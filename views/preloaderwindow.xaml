@@ -1,0 +1,70 @@
+<Window x:Class="ScreenRecorderApp.Views.PreloaderWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Preloader" Height="220" Width="320"
+        Background="#00FFFFFF" WindowStyle="None" AllowsTransparency="True"
+        WindowStartupLocation="CenterScreen" ShowInTaskbar="True">
+  <Border Background="{StaticResource WindowBackground}" BorderBrush="#333333" BorderThickness="1" CornerRadius="12">
+    <Grid Margin="20">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" /> <!-- Logo Header -->
+        <RowDefinition Height="*" />    <!-- Content Area (Spinner or Prompt) -->
+        <RowDefinition Height="Auto" /> <!-- Footer text/buttons -->
+      </Grid.RowDefinitions>
+
+      <!-- Logo Header -->
+      <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+        <TextBlock Text="EMANAGER" Foreground="#FFFFFFFF" FontSize="20" FontWeight="Bold" FontFamily="Segoe UI" />
+        <TextBlock Text=".PRO" Foreground="{StaticResource PrimaryColor}" FontSize="20" FontWeight="Bold" FontFamily="Segoe UI" />
+      </StackPanel>
+
+      <!-- Content Area (Loading state by default) -->
+      <Grid Grid.Row="1" VerticalAlignment="Center">
+        <!-- 1. Spinner & Status Container -->
+        <StackPanel x:Name="LoadingContainer" Orientation="Vertical" HorizontalAlignment="Center" Visibility="Visible">
+          <Grid Width="40" Height="40" HorizontalAlignment="Center" Margin="0,10,0,15">
+            <!-- Background Ring -->
+            <Ellipse Width="36" Height="36" Stroke="#2A2A30" StrokeThickness="3.5" />
+            <!-- Animated Dash Ring -->
+            <Ellipse Width="36" Height="36" Stroke="{StaticResource PrimaryColor}" StrokeThickness="3.5" StrokeDashArray="3 3" RenderTransformOrigin="0.5,0.5">
+              <Ellipse.RenderTransform>
+                <RotateTransform x:Name="SpinnerTransform" Angle="0" />
+              </Ellipse.RenderTransform>
+              <Ellipse.Triggers>
+                <EventTrigger RoutedEvent="Loaded">
+                  <BeginStoryboard>
+                    <Storyboard>
+                      <DoubleAnimation Storyboard.TargetName="SpinnerTransform" 
+                                       Storyboard.TargetProperty="Angle" 
+                                       From="0" To="360" Duration="0:0:1.2" 
+                                       RepeatBehavior="Forever" />
+                    </Storyboard>
+                  </BeginStoryboard>
+                </EventTrigger>
+              </Ellipse.Triggers>
+            </Ellipse>
+          </Grid>
+          <TextBlock x:Name="StatusText" Text="Sprawdzanie aktualizacji..." Foreground="{StaticResource SecondaryText}" FontSize="12" HorizontalAlignment="Center" />
+        </StackPanel>
+
+        <!-- 2. Update Question Container (Hidden by default) -->
+        <StackPanel x:Name="UpdatePromptContainer" Orientation="Vertical" HorizontalAlignment="Center" Visibility="Collapsed">
+          <TextBlock x:Name="UpdateTitleText" Text="Dostępna jest nowa wersja!" Foreground="{StaticResource PrimaryText}" FontSize="13" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,10,0,5" />
+          <TextBlock x:Name="UpdateVersionText" Text="Wersja v1.0.0" Foreground="{StaticResource SecondaryText}" FontSize="12" HorizontalAlignment="Center" Margin="0,0,0,15" />
+        </StackPanel>
+      </Grid>
+
+      <!-- Buttons Grid / Footer (Shows buttons when update is found) -->
+      <Grid Grid.Row="2" x:Name="ActionButtonsContainer" Visibility="Collapsed" Margin="0,0,0,5">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="10" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Button Grid.Column="0" Content="Aktualizuj" Click="UpdateButton_Click" Height="32" />
+        <Button Grid.Column="2" Content="Pomiń" Click="SkipButton_Click" Style="{StaticResource SecondaryButton}" Height="32" />
+      </Grid>
+
+    </Grid>
+  </Border>
+</Window>

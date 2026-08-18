@@ -19,13 +19,23 @@ public static class UpdaterService
 	public static string ChangelogCachePath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ScreenRecorderApp", "changelog_cache.txt");
 	public static string LastVersionFile => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ScreenRecorderApp", "last_version.txt");
 
+	public class UpdateInfo
+	{
+		public bool IsUpdateAvailable { get; set; }
+		public string VersionTag { get; set; } = string.Empty;
+		public string DownloadUrl { get; set; } = string.Empty;
+		public string ChangelogText { get; set; } = string.Empty;
+		public Version OnlineVersion { get; set; } = new Version(1, 0, 0, 0);
+	}
+
 	static UpdaterService()
 	{
 		Http.DefaultRequestHeaders.Add("User-Agent", "ScreenRecorderApp-Updater");
 	}
 
-	public static async Task<bool> CheckAndPerformUpdateAsync(bool silent = true)
+	public static async Task<UpdateInfo> CheckForUpdateInfoAsync()
 	{
+		UpdateInfo info = new UpdateInfo();
 		try
 		{
 			// 1. Get current assembly version
@@ -36,33 +46,37 @@ public static class UpdaterService
 			using HttpResponseMessage res = await Http.SendAsync(req);
 			if (!res.IsSuccessStatusCode)
 			{
-				return false;
+				return info;
 			}
 
 			string json = await res.Content.ReadAsStringAsync();
 			JsonNode? releaseNode = JsonNode.Parse(json);
 			if (releaseNode == null)
 			{
-				return false;
+				return info;
 			}
 
 			string? tagName = releaseNode["tag_name"]?.GetValue<string>();
 			if (string.IsNullOrEmpty(tagName))
 			{
-				return false;
+				return info;
 			}
 
 			// Clean version string (remove 'v' prefix if present)
 			string cleanVersion = tagName.TrimStart('v', 'V');
+			if (!cleanVersion.Contains("."))
+			{
+				cleanVersion += ".0";
+			}
 			if (!Version.TryParse(cleanVersion, out Version? onlineVersion))
 			{
-				return false;
+				return info;
 			}
 
 			// 3. Compare versions
 			if (onlineVersion <= currentVersion)
 			{
-				return false;
+				return info;
 			}
 
 			// 4. Find the SetupScreenRecorder.exe asset download URL
@@ -83,52 +97,74 @@ public static class UpdaterService
 
 			if (string.IsNullOrEmpty(downloadUrl))
 			{
-				return false;
+				return info;
 			}
 
-			// 5. Ask user if we are not in silent check mode (or just proceed)
-			if (!silent)
-			{
-				MessageBoxResult result = MessageBox.Show(
-					$"Dostępna jest nowa wersja: {tagName}.\nCzy chcesz ją zainstalować automatycznie?",
-					"Aktualizacja",
-					MessageBoxButton.YesNo,
-					MessageBoxImage.Question
-				);
-				if (result != MessageBoxResult.Yes)
-				{
-					return false;
-				}
-			}
+			info.IsUpdateAvailable = true;
+			info.VersionTag = tagName;
+			info.DownloadUrl = downloadUrl;
+			info.ChangelogText = releaseNode["body"]?.GetValue<string>() ?? string.Empty;
+			info.OnlineVersion = onlineVersion;
+		}
+		catch (Exception ex)
+		{
+			Debug.WriteLine("Update check error: " + ex.Message);
+		}
+		return info;
+	}
 
-			// 6. Download the installer
-			byte[] fileBytes = await Http.GetByteArrayAsync(downloadUrl);
+	public static async Task<bool> DownloadAndInstallAsync(UpdateInfo info)
+	{
+		try
+		{
+			// 1. Download the installer
+			byte[] fileBytes = await Http.GetByteArrayAsync(info.DownloadUrl);
 			await File.WriteAllBytesAsync(TempInstallerPath, fileBytes);
 
-			// 7. Cache the changelog and target version
-			string? body = releaseNode["body"]?.GetValue<string>();
-			if (!string.IsNullOrEmpty(body))
+			// 2. Cache the changelog and target version
+			if (!string.IsNullOrEmpty(info.ChangelogText))
 			{
 				Directory.CreateDirectory(Path.GetDirectoryName(ChangelogCachePath)!);
-				await File.WriteAllTextAsync(ChangelogCachePath, body);
+				await File.WriteAllTextAsync(ChangelogCachePath, info.ChangelogText);
 			}
 
 			// Save the target version we are updating to
-			await File.WriteAllTextAsync(LastVersionFile, onlineVersion.ToString());
+			await File.WriteAllTextAsync(LastVersionFile, info.OnlineVersion.ToString());
 
-			// 8. Run the batch updater and exit
+			// 3. Run the batch installer and exit
 			RunBatchInstallerAndExit();
 			return true;
 		}
 		catch (Exception ex)
 		{
-			Debug.WriteLine("Update check error: " + ex.Message);
-			if (!silent)
-			{
-				MessageBox.Show("Błąd podczas sprawdzania aktualizacji:\n" + ex.Message, "Aktualizacja", MessageBoxButton.OK, MessageBoxImage.Error);
-			}
+			Debug.WriteLine("Download/Install error: " + ex.Message);
 			return false;
 		}
+	}
+
+	public static async Task<bool> CheckAndPerformUpdateAsync(bool silent = true)
+	{
+		UpdateInfo info = await CheckForUpdateInfoAsync();
+		if (!info.IsUpdateAvailable)
+		{
+			return false;
+		}
+
+		if (!silent)
+		{
+			MessageBoxResult result = MessageBox.Show(
+				$"Dostępna jest nowa wersja: {info.VersionTag}.\nCzy chcesz ją zainstalować automatycznie?",
+				"Aktualizacja",
+				MessageBoxButton.YesNo,
+				MessageBoxImage.Question
+			);
+			if (result != MessageBoxResult.Yes)
+			{
+				return false;
+			}
+		}
+
+		return await DownloadAndInstallAsync(info);
 	}
 
 	private static void RunBatchInstallerAndExit()
@@ -136,7 +172,6 @@ public static class UpdaterService
 		string currentExe = Environment.ProcessPath ?? Assembly.GetExecutingAssembly().Location;
 		string batchPath = Path.Combine(Path.GetTempPath(), "screen_recorder_updater.bat");
 
-		// Write a batch file that waits for the app to exit, installs, and restarts the app
 		string batchContent = $@"@echo off
 timeout /t 2 /nobreak > nul
 start /wait """" ""{TempInstallerPath}"" /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /CLOSEAPPLICATIONS

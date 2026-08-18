@@ -67,40 +67,11 @@ public partial class App : Application
 				}
 			}
 
-			File.AppendAllText(logFile, $"[{DateTime.Now:HH:mm:ss}] Loading session...\n");
-			bool hasSession = SupabaseService.TryLoadSession();
-			File.AppendAllText(logFile, $"[{DateTime.Now:HH:mm:ss}] Session loaded. HasSession: {hasSession}\n");
-
-			if (hasSession)
-			{
-				File.AppendAllText(logFile, $"[{DateTime.Now:HH:mm:ss}] Creating MainWindow...\n");
-				MainWindow mainWin = new MainWindow();
-				File.AppendAllText(logFile, $"[{DateTime.Now:HH:mm:ss}] Showing MainWindow...\n");
-				mainWin.Show();
-				File.AppendAllText(logFile, $"[{DateTime.Now:HH:mm:ss}] MainWindow shown.\n");
-			}
-			else
-			{
-				File.AppendAllText(logFile, $"[{DateTime.Now:HH:mm:ss}] Creating LoginWindow...\n");
-				LoginWindow loginWin = new LoginWindow();
-				File.AppendAllText(logFile, $"[{DateTime.Now:HH:mm:ss}] Showing LoginWindow...\n");
-				loginWin.Show();
-				File.AppendAllText(logFile, $"[{DateTime.Now:HH:mm:ss}] LoginWindow shown.\n");
-			}
-
-			// Run silent update check in background after a short delay
-			_ = Task.Run(async () =>
-			{
-				try
-				{
-					await Task.Delay(5000);
-					await UpdaterService.CheckAndPerformUpdateAsync(silent: true);
-				}
-				catch (Exception exUp)
-				{
-					File.AppendAllText(logFile, $"[{DateTime.Now:HH:mm:ss}] Background update check failed: {exUp.Message}\n");
-				}
-			});
+			File.AppendAllText(logFile, $"[{DateTime.Now:HH:mm:ss}] Creating PreloaderWindow...\n");
+			PreloaderWindow preloader = new PreloaderWindow();
+			File.AppendAllText(logFile, $"[{DateTime.Now:HH:mm:ss}] Showing PreloaderWindow...\n");
+			preloader.Show();
+			File.AppendAllText(logFile, $"[{DateTime.Now:HH:mm:ss}] PreloaderWindow shown.\n");
 		}
 		catch (Exception ex)
 		{
