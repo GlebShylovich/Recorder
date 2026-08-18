@@ -193,7 +193,7 @@ del ""%~f0""
 			FileName = "cmd.exe",
 			Arguments = $"/c \"{batchPath}\"",
 			CreateNoWindow = true,
-			UseShellExecute = true
+			UseShellExecute = false
 		};
 
 		Process.Start(psi);
