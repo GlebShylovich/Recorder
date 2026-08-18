@@ -9,7 +9,7 @@ namespace ScreenRecorderApp.Services;
 
 public static class NotificationService
 {
-	private const string AppId = "ScreenRecorderApp";
+	private const string AppId = "EMANAGER.Pomoc";
 
 	public static void RegisterApp()
 	{
@@ -19,7 +19,7 @@ public static class NotificationService
 			{
 				if (key != null)
 				{
-					key.SetValue("DisplayName", "Screen Recorder");
+					key.SetValue("DisplayName", "EMANAGER Pomoc");
 					string exePath = Environment.ProcessPath ?? System.Reflection.Assembly.GetExecutingAssembly().Location;
 					string dir = Path.GetDirectoryName(exePath) ?? string.Empty;
 					string iconPath = Path.Combine(dir, "app.ico");

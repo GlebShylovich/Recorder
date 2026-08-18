@@ -28,6 +28,9 @@ public partial class App : Application
 			AppDomain.CurrentDomain.UnhandledException += OnDomainUnhandledException;
 			File.AppendAllText(logFile, $"[{DateTime.Now:HH:mm:ss}] Event handlers registered.\n");
 
+			// Prevent WPF from shutting down when ChangelogWindow closes
+			Current.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+
 			// Check if we just updated successfully
 			if (File.Exists(UpdaterService.LastVersionFile))
 			{

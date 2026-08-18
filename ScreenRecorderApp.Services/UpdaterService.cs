@@ -15,9 +15,9 @@ public static class UpdaterService
 	private const string RepoUrl = "https://api.github.com/repos/GlebShylovich/Recorder/releases/latest";
 	private static readonly HttpClient Http = new HttpClient();
 
-	private static string TempInstallerPath => Path.Combine(Path.GetTempPath(), "SetupScreenRecorder_Update.exe");
-	public static string ChangelogCachePath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ScreenRecorderApp", "changelog_cache.txt");
-	public static string LastVersionFile => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ScreenRecorderApp", "last_version.txt");
+	private static string TempInstallerPath => Path.Combine(Path.GetTempPath(), "SetupEManagerPomoc_Update.exe");
+	public static string ChangelogCachePath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "EMANAGER Pomoc", "changelog_cache.txt");
+	public static string LastVersionFile => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "EMANAGER Pomoc", "last_version.txt");
 
 	public class UpdateInfo
 	{
@@ -79,7 +79,7 @@ public static class UpdaterService
 				return info;
 			}
 
-			// 4. Find the SetupScreenRecorder.exe asset download URL
+			// 4. Find the SetupEManagerPomoc.exe asset download URL
 			string? downloadUrl = null;
 			JsonArray? assets = releaseNode["assets"]?.AsArray();
 			if (assets != null)
@@ -87,7 +87,7 @@ public static class UpdaterService
 				foreach (JsonNode? asset in assets)
 				{
 					string? name = asset?["name"]?.GetValue<string>();
-					if (name != null && name.Equals("SetupScreenRecorder.exe", StringComparison.OrdinalIgnoreCase))
+					if (name != null && name.Equals("SetupEManagerPomoc.exe", StringComparison.OrdinalIgnoreCase))
 					{
 						downloadUrl = asset?["browser_download_url"]?.GetValue<string>();
 						break;
@@ -170,8 +170,8 @@ public static class UpdaterService
 	private static void RunBatchInstallerAndExit()
 	{
 		string currentExe = Environment.ProcessPath ?? Assembly.GetExecutingAssembly().Location;
-		string appDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ScreenRecorder");
-		string installedExe = Path.Combine(appDataFolder, "ScreenRecorderAppRun.exe");
+		string appDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "EMANAGER Pomoc");
+		string installedExe = Path.Combine(appDataFolder, "EManagerPomoc.exe");
 		string batchPath = Path.Combine(Path.GetTempPath(), "screen_recorder_updater.bat");
 
 		// Write a batch file that checks if the installed app exists after setup, and if so launches it

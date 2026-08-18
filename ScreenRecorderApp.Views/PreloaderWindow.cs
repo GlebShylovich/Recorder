@@ -78,6 +78,9 @@ public partial class PreloaderWindow : Window
 	{
 		try
 		{
+			// Restore default shutdown behavior now that the next window is being shown
+			Application.Current.ShutdownMode = ShutdownMode.OnLastWindowClose;
+
 			bool hasSession = SupabaseService.TryLoadSession();
 			if (hasSession)
 			{
